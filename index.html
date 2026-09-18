@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Ness.com — Chatbot Demo Host</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    body { font-family: system-ui, sans-serif; margin: 0; padding: 0; background: #f8fafc; color: #0f172a; }
+    header { background: #0f172a; color: white; padding: 24px 40px; }
+    main { max-width: 800px; margin: 40px auto; padding: 0 20px; }
+    h1 { margin: 0; }
+    p { line-height: 1.6; }
+    .badge { display: inline-block; background: #2563eb; color: white; padding: 2px 10px; border-radius: 999px; font-size: 12px; margin-left: 8px; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Ness.com <span class="badge">Demo Host</span></h1>
+  </header>
+  <main>
+    <p>
+      This page is only a demonstration host for the Generic AI Website Chatbot Platform (see
+      <code>HLD.md</code> and <code>architecture (2).md</code>). The chatbot widget in the bottom-right
+      corner is fully independent of this page — it talks directly to the FastAPI backend running the
+      full ingestion → understanding → RAG → flows → LangGraph runtime → safety pipeline built in
+      Stages 1-8.
+    </p>
+    <p>
+      Try asking things like <em>"What Salesforce services does Ness offer?"</em> or
+      <em>"I'd like to book a demo, my name is Jordan Lee, email jordan.lee@example.com, preferred date next Tuesday"</em>.
+    </p>
+  </main>
+
+  <script src="widget/chatbot.js"></script>
+  <script>
+    Chatbot.init({
+      websiteId: "ness",
+      websiteName: "Ness",
+      apiBaseUrl: "http://127.0.0.1:8080",
+    });
+  </script>
+</body>
+</html>

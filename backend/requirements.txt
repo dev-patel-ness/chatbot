@@ -1,0 +1,10 @@
+playwright>=1.47.0
+beautifulsoup4>=4.12.3
+pydantic>=2.9.0
+boto3>=1.35.0
+psycopg[binary]>=3.2.0
+pgvector>=0.3.6
+langgraph>=0.2.0
+fastapi>=0.115.0
+uvicorn>=0.30.0
+requests>=2.32.0

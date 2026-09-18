@@ -1,0 +1,50 @@
+services:
+  postgres:
+    image: pgvector/pgvector:pg16
+    container_name: chatbot_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: chatbot
+      POSTGRES_PASSWORD: chatbot_dev_password
+      POSTGRES_DB: chatbot
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U chatbot -d chatbot"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  mock_api:
+    build: .
+    container_name: chatbot_mock_api
+    restart: unless-stopped
+    command: ["uvicorn", "mock_api.app:app", "--host", "0.0.0.0", "--port", "8000"]
+    ports:
+      - "8000:8000"
+
+  backend:
+    build: .
+    container_name: chatbot_backend
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      mock_api:
+        condition: service_started
+    environment:
+      AWS_REGION: us-east-1
+      # AWS credentials are never hardcoded here — mounted read-only from the host below.
+      BEDROCK_CHAT_MODEL: amazon.nova-pro-v1:0
+      BEDROCK_EMBEDDING_MODEL: amazon.titan-embed-text-v2:0
+      CHATBOT_DB_DSN: postgresql://chatbot:chatbot_dev_password@postgres:5432/chatbot
+      MOCK_API_URL: http://mock_api:8000
+    ports:
+      - "8080:8080"
+    volumes:
+      - ${USERPROFILE}/.aws:/root/.aws:ro
+
+volumes:
+  pgdata:
