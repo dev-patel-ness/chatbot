@@ -11,6 +11,7 @@ from knowledge.rag import RagEngine
 from tools.executor import ToolExecutor
 from safety.checker import SafetyChecker
 from safety.models import DEFAULT_UNSAFE_FALLBACK
+from safety.db import log_safety_event
 
 from .handlers import handle_flow, handle_rag, handle_tool
 from .models import ConflictResolution, Intent, IntentDetectionResult, NodeOutput
@@ -41,6 +42,7 @@ def node_input_safety(deps: RuntimeDeps, state: dict) -> dict:
     result = deps.safety_checker.check_input(state["user_message"])
     if result.is_safe:
         return {"input_blocked": False}
+    log_safety_event(deps.conn, state.get("conversation_id"), "input", state["user_message"], result.reason)
     return {
         "input_blocked": True,
         "final_response": DEFAULT_UNSAFE_FALLBACK,
@@ -138,4 +140,6 @@ def node_generate_response(deps: RuntimeDeps, state: dict) -> dict:
 
 def node_output_safety(deps: RuntimeDeps, state: dict) -> dict:
     result = deps.safety_checker.check_output(state["final_response"])
+    if not result.is_safe:
+        log_safety_event(deps.conn, state.get("conversation_id"), "output", state["final_response"], "output flagged unsafe")
     return {"final_response": result.final_response}

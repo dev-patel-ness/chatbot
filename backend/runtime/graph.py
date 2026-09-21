@@ -24,6 +24,7 @@ class RuntimeState(TypedDict, total=False):
     website_name: str
     user_message: str
     history: list[str]
+    conversation_id: int
     input_blocked: bool
     intent_result: dict
     conflict_resolution: dict
