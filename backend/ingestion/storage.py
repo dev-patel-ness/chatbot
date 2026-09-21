@@ -1,17 +1,28 @@
 """Persists crawl output to disk as a sitemap + one JSON file per page."""
 from __future__ import annotations
 
+import hashlib
 import json
 import re
 from pathlib import Path
 
 from .models import CrawlResult
 
+_MAX_SLUG_LENGTH = 120  # keeps filenames well under Windows' ~260 char path limit
+
 
 def _slugify_url(url: str) -> str:
     slug = re.sub(r"^https?://", "", url)
     slug = re.sub(r"[^a-zA-Z0-9]+", "_", slug).strip("_")
-    return slug or "index"
+    slug = slug or "index"
+
+    if len(slug) > _MAX_SLUG_LENGTH:
+        # Truncate long slugs (e.g. OAuth/redirect URLs) and append a hash to stay unique.
+        url_hash = hashlib.sha1(url.encode("utf-8")).hexdigest()[:10]
+        slug = f"{slug[:_MAX_SLUG_LENGTH]}_{url_hash}"
+
+    return slug
+
 
 
 def save_crawl_result(result: CrawlResult, output_dir: str | Path) -> Path:
